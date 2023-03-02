@@ -1,23 +1,40 @@
 package main
 
 import (
+	"compile/lexical"
 	"fmt"
-	"regexp"
+	"go/scanner"
+	"go/token"
+	"time"
 )
-
-const (
-	T1 = iota // 0
-	T2        // 1
-	T3        // 2
-	T4        // 3
-)
-
-func init() {
-	fmt.Println(10)
-}
 
 func main() {
-	re := regexp.MustCompile(`ab?`)
-	fmt.Println(re.FindStringIndex("tblett"))
-	fmt.Println(re.FindStringIndex("foo") == nil)
+
+	src := []byte(`"a"`)
+	var s scanner.Scanner
+	fset := token.NewFileSet()
+	file := fset.AddFile("", fset.Base(), len(src))
+	s.Init(file, src, nil, 0)
+	for {
+		pos, tok, lit := s.Scan()
+		fmt.Printf("%-6s%-8s%q\n", fset.Position(pos), tok, lit)
+
+		if tok == token.EOF {
+			break
+		}
+	}
+
+	var c lexical.Scanner
+	c.Init("name", src)
+	for {
+		_, tok, lit := c.Scan()
+		time.Sleep(1 * time.Second)
+		fmt.Printf("%-8s%q\n", tok, lit)
+
+		if tok == lexical.EOF {
+			break
+		}
+
+	}
+
 }
