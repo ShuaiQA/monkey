@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-// 定义表达式的优先级
+// 表达式的优先级
 const (
 	_ int = iota
 	LOWEST
@@ -37,12 +37,12 @@ func New(l *lexer.Lexer) *Parser {
 	p.nextToken()
 	p.nextToken()
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
-	// 针对于IDENT,创建一个前缀解析函数
+	// 针对于什么才会创建一个前缀解析,首先是1个token可以构成一个表达式,还有就是一个操作符加上一个表达式
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
-	// 注册中缀表达式
+	// 注册中缀表达式,中缀表达式主要就是操作符和左右两个表达式进行组合
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
@@ -55,27 +55,21 @@ func New(l *lexer.Lexer) *Parser {
 	return p
 }
 
-func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
-	expression := &ast.InfixExpression{
-		Token:    p.curToken,
-		Operator: p.curToken.Literal,
-		Left:     left,
-	}
-	precedence := p.curPrecedence()
-	p.nextToken()
-	expression.Right = p.parseExpression(precedence)
-	return expression
-}
+// 定义前缀解析函数和中缀解析函数
+// 在前缀位置遇到相关的词法单元,调用prefixParseFn
+// 在中缀位置遇到词法单元类型时会调用infixParseFn
+// 根据函数的参数和返回值也可以看出前缀和中缀的区别
+type (
+	prefixParseFn func() ast.Expression
+	infixParseFn  func(ast.Expression) ast.Expression
+)
 
-func (p *Parser) parsePrefixExpression() ast.Expression {
-	expression := &ast.PrefixExpression{
-		Token:    p.curToken,
-		Operator: p.curToken.Literal,
-	}
-	p.nextToken()
-	// 注意此处进行解析右面的部分,返回后的值赋值给当前的右面的表达式
-	expression.Right = p.parseExpression(PREFIX)
-	return expression
+// 将相关的tokenType注册到对应的函数上面
+func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
+	p.prefixParseFns[tokenType] = fn
+}
+func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
+	p.infixParseFns[tokenType] = fn
 }
 
 func (p *Parser) ParseProgram() *ast.Program {
@@ -104,12 +98,72 @@ func (p *Parser) parseStatement() ast.Statement {
 	}
 }
 
-// 解析标识符值
+// parseLetStatement 解析Let语句,期望下一个token是IDENT,将标识符的值添加到let语句中
+// 标识符之后期望是一个赋值=token
+func (p *Parser) parseLetStatement() *ast.LetStatement {
+	stmt := &ast.LetStatement{Token: p.curToken}
+	if !p.expectPeek(token.IDENT) {
+		return nil
+	}
+	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	if !p.expectPeek(token.ASSIGN) {
+		return nil
+	}
+	for !p.curTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+	return stmt
+}
+
+// parseReturnStatement 解析return语句,之后应该是表达式语句
+func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
+	stmt := &ast.ReturnStatement{Token: p.curToken}
+	p.nextToken()
+	// TODO: 跳过对表达式的处理，直到遇见分号
+	for !p.curTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+	return stmt
+}
+
+// parseExpressionStatement 解析表达式语句,将token放到表达式语句中
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	stmt := &ast.ExpressionStatement{Token: p.curToken}
+	stmt.Expression = p.parseExpression(LOWEST) // 表达式解析LOWEST代表什么
+	if p.peekTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+	return stmt
+}
+
+// 检查前缀位置是否有与tokenType相关的解析函数,如果有相应的函数调用解析函数
+func (p *Parser) parseExpression(precedence int) ast.Expression {
+	// 首先是前缀解析获取前缀表达式
+	prefix := p.prefixParseFns[p.curToken.Type]
+	if prefix == nil {
+		p.noPrefixParseFnError(p.curToken.Type)
+		return nil
+	}
+	leftExp := prefix()
+	// 之后进行中缀解析,只有当优先级较大的时候才会执行下面的循环
+	// 例如 3+5*6 进入该函数我们会发现如果右面的表达式的优先级大于当前的会先解析右面的
+	// 如果右面的优先级小于等于当前的会先解析当前的 3+3+9,如果右面的优先级越强
+	// 当前的表达式包含的词法单元、运算符、操作数越多
+	for !p.peekTokenIs(token.SEMICOLON) && precedence < p.peekPrecedence() {
+		infix := p.infixParseFns[p.peekToken.Type]
+		if infix == nil {
+			return leftExp
+		}
+		p.nextToken()
+		leftExp = infix(leftExp)
+	}
+	return leftExp
+}
+
 func (p *Parser) parseIdentifier() ast.Expression {
 	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 }
 
-// 解析整型值,将字符串进行转换
 func (p *Parser) parseIntegerLiteral() ast.Expression {
 	lit := &ast.IntegerLiteral{Token: p.curToken}
 	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
@@ -122,21 +176,27 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	return lit
 }
 
-// 定义前缀解析函数和中缀解析函数
-// 在前缀位置遇到相关的词法单元,调用prefixParseFn
-// 在中缀位置遇到词法单元类型时会调用infixParseFn
-// 根据函数的参数和返回值也可以看出前缀和中缀的区别
-type (
-	prefixParseFn func() ast.Expression
-	infixParseFn  func(ast.Expression) ast.Expression
-)
-
-// 将相关的tokenType注册到对应的函数上面
-func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
-	p.prefixParseFns[tokenType] = fn
+// 设置前缀表达式的优先级
+func (p *Parser) parsePrefixExpression() ast.Expression {
+	expression := &ast.PrefixExpression{
+		Token:    p.curToken,
+		Operator: p.curToken.Literal,
+	}
+	p.nextToken()
+	expression.Right = p.parseExpression(PREFIX)
+	return expression
 }
-func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
-	p.infixParseFns[tokenType] = fn
+
+func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
+	expression := &ast.InfixExpression{
+		Token:    p.curToken,
+		Operator: p.curToken.Literal,
+		Left:     left,
+	}
+	precedence := p.curPrecedence()
+	p.nextToken()
+	expression.Right = p.parseExpression(precedence) // 中缀解析设置优先级
+	return expression
 }
 
 // 将后面的赋值给前面的,peekToken进行更新
@@ -154,74 +214,9 @@ func (p *Parser) peekError(t token.TokenType) {
 	p.errors = append(p.errors, msg)
 }
 
-// 在该函数中优先级最低的会传递给parseExpression
-func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
-	stmt := &ast.ExpressionStatement{Token: p.curToken}
-	stmt.Expression = p.parseExpression(LOWEST) // 表达式解析LOWEST代表什么
-	if p.peekTokenIs(token.SEMICOLON) {
-		p.nextToken()
-	}
-	return stmt
-}
-
 func (p *Parser) noPrefixParseFnError(t token.TokenType) {
 	msg := fmt.Sprintf("no prefix parse function for %s found", t)
 	p.errors = append(p.errors, msg)
-}
-
-// 检查前缀位置是否有与tokenType相关的解析函数,如果有相应的函数调用解析函数
-func (p *Parser) parseExpression(precedence int) ast.Expression {
-	// 首先是前缀解析获取前缀表达式
-	prefix := p.prefixParseFns[p.curToken.Type]
-	if prefix == nil {
-		p.noPrefixParseFnError(p.curToken.Type)
-		return nil
-	}
-	leftExp := prefix()
-	// 之后进行中缀解析,只有当优先级较大的时候才会执行下面的循环
-	for !p.peekTokenIs(token.SEMICOLON) && precedence < p.peekPrecedence() {
-		infix := p.infixParseFns[p.peekToken.Type]
-		if infix == nil {
-			return leftExp
-		}
-		p.nextToken()
-		leftExp = infix(leftExp)
-	}
-	return leftExp
-}
-
-func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
-	stmt := &ast.ReturnStatement{Token: p.curToken}
-	p.nextToken()
-	// TODO: 跳过对表达式的处理，直到遇见分号
-	for !p.curTokenIs(token.SEMICOLON) {
-		p.nextToken()
-	}
-	return stmt
-}
-
-// 解析Let语句
-func (p *Parser) parseLetStatement() *ast.LetStatement {
-	// 对curToken进行赋值,便于后续使用TokenLiteral()方法进行调试
-	stmt := &ast.LetStatement{Token: p.curToken}
-
-	// 当前期望下一个token是标识符
-	if !p.expectPeek(token.IDENT) {
-		return nil
-	}
-	// 将标识符添加到语句中
-	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
-	// 期望下一个操作符是赋值
-	if !p.expectPeek(token.ASSIGN) {
-		return nil
-	}
-
-	// TODO: 跳过对表达式的处理，直到遇见分号
-	for !p.curTokenIs(token.SEMICOLON) {
-		p.nextToken()
-	}
-
-	return stmt
 }
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {

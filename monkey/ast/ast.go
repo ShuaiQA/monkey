@@ -13,16 +13,6 @@ type Node interface {
 	String() string
 }
 
-type Statement interface { // 语句
-	Node
-	statementNode()
-}
-
-type Expression interface { // 表达式
-	Node
-	expressionNode()
-}
-
 // 程序是由多个语句构成的
 type Program struct {
 	Statements []Statement
@@ -46,18 +36,12 @@ func (p *Program) String() string {
 	return out.String()
 }
 
-type ExpressionStatement struct {
-	Token      token.Token // 该表达式中的第一个词法单元
-	Expression Expression
-}
-
-func (es *ExpressionStatement) statementNode()       {}
-func (es *ExpressionStatement) TokenLiteral() string { return es.Token.Literal }
-func (es *ExpressionStatement) String() string {
-	if es.Expression != nil {
-		return es.Expression.String()
-	}
-	return ""
+// 语句接口,对下面的结构体进行分析
+// 什么结构体可以是语句
+// return、let、表达式语句
+type Statement interface {
+	Node
+	statementNode()
 }
 
 // x + 10;   // 可能有的语言并没有这样的
@@ -96,6 +80,28 @@ func (ls *LetStatement) String() string {
 	}
 	out.WriteString(";")
 	return out.String()
+}
+
+type ExpressionStatement struct {
+	Token      token.Token // 该表达式中的第一个词法单元
+	Expression Expression
+}
+
+func (es *ExpressionStatement) statementNode()       {}
+func (es *ExpressionStatement) TokenLiteral() string { return es.Token.Literal }
+func (es *ExpressionStatement) String() string {
+	if es.Expression != nil {
+		return es.Expression.String()
+	}
+	return ""
+}
+
+// 表达式接口,对下面的结构体进行分析
+// 什么结构体可以是表达式
+// identifier 、INT、还有就是前缀、中缀组合可以是表达式
+type Expression interface {
+	Node
+	expressionNode()
 }
 
 type Identifier struct {
