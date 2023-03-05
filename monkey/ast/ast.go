@@ -19,7 +19,6 @@ type Program struct {
 	Statements []Statement
 }
 
-// ? 多个表达式只输出一个
 func (p *Program) TokenLiteral() string {
 	if len(p.Statements) > 0 {
 		return p.Statements[0].TokenLiteral()

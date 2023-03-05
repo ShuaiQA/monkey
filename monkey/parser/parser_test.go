@@ -7,6 +7,28 @@ import (
 	"testing"
 )
 
+func TestString(t *testing.T) {
+	input := `let five = 5;
+let ten = 10;
+let add = fn(x, y) {
+  x + y;
+};
+let result = add(five, ten);
+5 < 10 > 5;
+if (5 < 10) {
+	return true;
+} else {
+	return false;
+}
+10 == 10;
+10 != 9;
+`
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	fmt.Println(program)
+}
+
 func TestFunctionParameterParsing(t *testing.T) {
 	tests := []struct {
 		input          string

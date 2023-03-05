@@ -15,6 +15,7 @@ func New(input string) *Lexer {
 	return l
 }
 
+// 每一次读取一个tokenType
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 	l.skipWhitespace()

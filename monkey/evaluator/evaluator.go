@@ -12,26 +12,30 @@ var (
 	FALSE = &object.Boolean{Value: false}
 )
 
-// 针对于false和true的优化,对于false来说都是一样的,同理true也是
-// 没有必要每声明一个boolen类型的变量就创建一个对象,可以让多个对象同时指向两个boolen类型的对象
-
 // Eval 的输入是ast中对应的输出,针对于每一个节点进行求值
+// 我们分析program下面的数组Statements是由什么构成的
+// ReturnStatement LetStatement BlockStatement 语句构成(其中ReturnStatement一般都是在ExpressionStatement里面)
+// Identifier Boolean IntegerLiteral IfExpression FunctionLiteral
+// CallExpression PrefixExpression InfixExpression 表达式构成
+// 下面分别进行对上面的情况进行求值
 func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
 		return evalProgram(node, env)
-	case *ast.LetStatement:
-		val := Eval(node.Value, env)
-		if isError(val) {
-			return val
-		}
-		env.Set(node.Name.Value, val)
 	case *ast.ReturnStatement:
 		val := Eval(node.ReturnValue, env)
 		if isError(val) {
 			return val
 		}
 		return &object.ReturnValue{Value: val}
+	case *ast.LetStatement:
+		val := Eval(node.Value, env)
+		if isError(val) {
+			return val
+		}
+		env.Set(node.Name.Value, val)
+	case *ast.BlockStatement:
+		return evalBlockStatement(node, env)
 	case *ast.IfExpression:
 		return evalIfExpression(node, env)
 	case *ast.FunctionLiteral:
@@ -48,8 +52,6 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return args[0]
 		}
 		return applyFunction(function, args)
-	case *ast.BlockStatement:
-		return evalBlockStatement(node, env)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
 	case *ast.IntegerLiteral:
@@ -79,6 +81,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	return nil
 }
 
+// 遍历函数的参数获取参数值,存储到result中进行返回
 func evalExpressions(exps []ast.Expression, env *object.Environment) []object.Object {
 	var result []object.Object
 	for _, e := range exps {
