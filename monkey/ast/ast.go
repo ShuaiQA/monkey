@@ -39,7 +39,7 @@ func (p *Program) String() string {
 
 // 语句接口,对下面的结构体进行分析
 // 什么结构体可以是语句
-// return、let、表达式语句
+// return、let、块语句{}、表达式语句
 type Statement interface {
 	Node
 	statementNode()
@@ -114,7 +114,7 @@ func (es *ExpressionStatement) String() string {
 
 // 表达式接口,对下面的结构体进行分析
 // 什么结构体可以是表达式
-// identifier 、INT、还有就是前缀、中缀组合可以是表达式
+// identifier 、INT、还有就是前缀、中缀组合可以是表达式,还有call fn返回表达式结果,函数也是一个表达式,if 也是表达式
 // 在本语言中if是一个表达式会返回值,if括号里的判断是由表达式构成,里面的内容是由语句构成(注意在本语言中表达式也是语句)
 type Expression interface {
 	Node
