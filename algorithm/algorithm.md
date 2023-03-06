@@ -1,7 +1,5 @@
 # 递归回溯
 
-
-
 目的：递归找到全解
 
 递归出口符合条件的可行解
@@ -56,29 +54,16 @@ func permute(nums []int) [][]int {
 
 ## 组合(待优化)
 
-```
-698题
-输入： nums = [4, 3, 2, 3, 5, 2, 1], k = 4
-输出： True
-说明： 有可能将其分成 4 个子集（5），（1,4），（2,3），（2,3）等于总和。
-```
+[划分为k个相等的子集](https://leetcode.cn/problems/partition-to-k-equal-sum-subsets/)
 
 - 将n个元素拿出k个进行排列
 - 将n个元素拿出k个进行组合
 
 考虑顺序问题
 
-<img src="./.pic/算法/image-20220410154838970.png" alt="image-20220410154838970" style="zoom:50%;" />
-
 **视⻆⼀，如果我们切换到这 n 个数字的视⻆，每个数字都要选择进⼊到 k 个桶中的某⼀个**
 
-<img src="./.pic/算法/image-20220410162232530.png" alt="image-20220410162232530" style="zoom:80%;" />
-
-视⻆⼆，如果我们切换到这 k 个桶的视⻆，对于每个桶，都要遍历 nums 中的 n 个数字，然后选择是否将当前遍历到的数字装进⾃⼰这个桶⾥。
-
-<img src="./.pic/算法/image-20220410162250543.png" alt="image-20220410162250543" style="zoom:80%;" />
-
-
+**视⻆⼆，如果我们切换到这 k 个桶的视⻆，对于每个桶，都要遍历 nums 中的 n 个数字，然后选择是否将当前遍历到的数字装进⾃⼰这个桶⾥。**
 
 ```go
 //划分子集将数组nums集合划分k的子集使每一个子集之和相同
@@ -196,19 +181,7 @@ func canPartitionKSubsets(nums []int, k int) bool {
 
 
 
-这个对应的是求解的元素里面的相对没有顺序的要求。
-
-<img src="./.pic/算法/image-20220410210902236.png" alt="image-20220410210902236" style="zoom: 50%;" />
-
-选取答案和顺序有关系。
-
-<img src="./.pic/算法/image-20220410210915125.png" alt="image-20220410210915125" style="zoom: 50%;" />
-
-
-
 ## 元素无重复不可复选
-
-
 
 ### 组合
 
@@ -220,8 +193,6 @@ func canPartitionKSubsets(nums []int, k int) bool {
 输入：nums = [1,2,3]
 输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
 ```
-
-<img src="./.pic/算法/image-20220410210902236.png" alt="image-20220410210902236" style="zoom: 50%;" />
 
 
 
@@ -250,8 +221,6 @@ func subsets(nums []int) [][]int {
 //输出：[ [] [1] [1 2] [1 2 3] [1 3] [2] [2 3] [3] ]
 ```
 
-
-
 ### 排列
 
 给定一个不含重复数字的数组 `nums` ，返回其 所有可能的全排列。你可以 **按任意顺序** 返回答案。
@@ -260,8 +229,6 @@ func subsets(nums []int) [][]int {
 输入：nums = [1,2,3]
 输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
 ```
-
-<img src="./.pic/算法/image-20220411082839312.png" alt="image-20220411082839312" style="zoom:50%;" />
 
 
 
@@ -320,7 +287,7 @@ func permute(nums []int) [][]int {
 输出：[[],[1],[1,2],[1,2,2],[2],[2,2]]
 ```
 
-<img src="./.pic/算法/image-20220411083834722.png" alt="image-20220411083834722" style="zoom:50%;" />
+
 
 ```go
 func subsetsWithDup(nums []int) [][]int {
@@ -745,10 +712,6 @@ func min(x,y int)int{
 
 
 
-
-
-
-
 ## 背包问题（子集问题的优化）
 
 常见的套路就是从数组中选择元素。
@@ -775,28 +738,19 @@ dp[i][j] = dp[i-1][j]与dp[i][j-nums[i-1]]
 
 ## 股票选择问题(状态转移)
 
-给定一个整数数组 prices ，它的第 i 个元素 prices[i] 是一支给定的股票在第 i 天的价格。
+[买卖股票的最佳时机](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/)
 
-设计一个算法来计算你所能获取的最大利润。你最多可以完成 k 笔交易。
+[买卖股票的最佳时机 II](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/)
 
-注意：你不能同时参与多笔交易（你必须在再次购买前出售掉之前的股票）。
+[买卖股票的最佳时机 III](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iii/)
 
-```
-输入：k = 2, prices = [3,2,6,5,0,3]
-输出：7
-解释：在第 2 天 (股票价格 = 2) 的时候买入，在第 3 天 (股票价格 = 6) 的时候卖出, 这笔交易所能获得利润 = 6-2 = 4 。
-     随后，在第 5 天 (股票价格 = 0) 的时候买入，在第 6 天 (股票价格 = 3) 的时候卖出, 这笔交易所能获得利润 = 3-0 = 3 。
-```
+[买卖股票的最佳时机 IV](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/)
 
-<img src="./.pic/算法/image-20220415150215604.png" alt="image-20220415150215604" style="zoom:50%;" />
+
 
 查找状态，可以发现每一天的状态有当前持有股票，处在第j次购买时。每一天的状态有buy(购买)，sell(出售)，rest(不变)
 
 状态的转移：假设0代表当前没有持有股票，1代表当前持有股票
-
-
-
-
 
 **思考当前第i天的状态能做出的选择有哪些。**
 
@@ -865,10 +819,6 @@ func maxProfit(k int, prices []int) int {
 
 
 
-
-
-
-
 **k==1的时候的问题。**
 
 给定一个数组 prices ，它的第 i 个元素 prices[i] 表示一支给定股票第 i 天的价格。
@@ -921,10 +871,6 @@ func maxProfit(prices []int) int {
     return dp[len(prices)][0]
 }
 ```
-
-
-
-
 
 **k==无穷，含有三个状态的时候**
 
@@ -1021,17 +967,9 @@ func rob(nums []int) int {
 
 
 
-
-
 对于环形数组的情况，我们需要注意首尾元素的选取，首先需要判断选择起始位置的元素那么末尾就不能选择，反之亦然。这个问题就变成了求解`nums[1:] 、nums[:len(nums)-1]`的情况了
 
-
-
-
-
-对于树状房子进行选择。
-
-<img src="./.pic/算法/image-20220415175301275.png" alt="image-20220415175301275" style="zoom: 80%;" />
+对于树状房子进行选择。[打家劫舍 III](https://leetcode.cn/problems/house-robber-iii/)
 
 ```go
 func rob(root *TreeNode) int {
@@ -1205,7 +1143,7 @@ func superEggDrop(k int, n int) int {
 
 ```
 
-<img src="./.pic/算法/image-20220416155100634.png" alt="image-20220416155100634" style="zoom: 80%;" />
+
 
 根据单调函数对第三层for循环进行二分查找。
 
@@ -1250,17 +1188,7 @@ func superEggDrop(k int, n int) int {
 
 
 
-## 通关的初始值的最小血量
-
-一些恶魔抓住了公主（P）并将她关在了地下城的右下角。地下城是由 M x N 个房间组成的二维网格。我们英勇的骑士（K）最初被安置在左上角的房间里，他必须穿过地下城并通过对抗恶魔来拯救公主。
-
-骑士的初始健康点数为一个正整数。如果他的健康点数在某一时刻降至 0 或以下，他会立即死亡。
-
-有些房间由恶魔守卫，因此骑士在进入这些房间时会失去健康点数（若房间里的值为负整数，则表示骑士将损失健康点数）；其他房间要么是空的（房间里的值为 0），要么包含增加骑士健康点数的魔法球（若房间里的值为正整数，则表示骑士将增加健康点数）。
-
-为了尽快到达公主，骑士决定每次只向右或向下移动一步。
-
-![image-20220416170737492](./.pic/算法/image-20220416170737492.png)
+## [地下城游戏](https://leetcode.cn/problems/dungeon-game/description/)
 
 思考如果是从左上向右下进行递推，那么我们需要进行标记两个数字，一个是到达当前位置的最小需求血量、还有到达当前位置还剩下多少血量，但是对于下面我们做选择的时候，就需要以来当前的两个的值进行递推了，并且不断地进行比较最小需求血量以及当前的血量。来进行下一步操作。
 
@@ -1308,26 +1236,7 @@ func calculateMinimumHP(dungeon [][]int) int {
 
 
 
-顺逆旋转求最小
-
-<img src="./.pic/算法/image-20220417092029095.png" alt="image-20220417092029095" style="zoom:50%;" />
-
-```
-输入: ring = "godding", key = "gd"
-输出: 4
-解释:
- 对于 key 的第一个字符 'g'，已经在正确的位置, 我们只需要1步来拼写这个字符。 
- 对于 key 的第二个字符 'd'，我们需要逆时针旋转 ring "godding" 2步使它变成 "ddinggo"。
- 当然, 我们还需要1步进行拼写。
- 因此最终的输出是 4。
-
-
-输入: ring = "godding", key = "godding"
-输出: 13
-
-```
-
-
+[自由之路](https://leetcode.cn/problems/freedom-trail/)
 
 ```go
 func findRotateSteps(ring string, key string) int {
@@ -1367,9 +1276,9 @@ func findRotateSteps(ring string, key string) int {
 
 
 
-## 中转k次最小路径问题..
+## 中转k次最小路径问题
 
-<img src="./.pic/算法/image-20220417100858897.png" alt="image-20220417100858897" style="zoom: 67%;" /><img src="./.pic/算法/image-20220417100907285.png" alt="image-20220417100907285" style="zoom: 67%;" />
+[K 站中转内最便宜的航班](https://leetcode.cn/problems/cheapest-flights-within-k-stops/)
 
 ```go
 type Edge struct{
@@ -1419,7 +1328,6 @@ func findCheapestPrice(n int, flights [][]int, src int, dst int, k int) int {
 }
 
 ```
-
 
 
 

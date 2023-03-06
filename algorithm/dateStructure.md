@@ -360,18 +360,7 @@ func rightSearch(nums []int, target int) int {
 
 ### 使用场景
 
-```
-珂珂喜欢吃香蕉。这里有 N 堆香蕉，第 i 堆中有 piles[i] 根香蕉。警卫已经离开了，将在 H 小时后回来。
-
-珂珂可以决定她吃香蕉的速度 K （单位：根/小时）。每个小时，她将会选择一堆香蕉，从中吃掉 K 根。如果这堆香蕉少于 K 根，她将吃掉这堆的所有香蕉，然后这一小时内不会再吃更多的香蕉。  
-
-珂珂喜欢慢慢吃，但仍然想在警卫回来前吃掉所有的香蕉。
-
-返回她可以在 H 小时内吃掉所有香蕉的最小速度 K（K 为整数）。
-
-输入: piles = [3,6,7,11], H = 8
-输出: 4
-```
+https://leetcode.cn/problems/koko-eating-bananas/description/
 
 题目中让求的是速度，我们可以以速度为f(x)的横坐标，不断地二分查找速度的范围，然后确定是否是最小的速度，进行对题目的解答。
 
@@ -493,13 +482,11 @@ func middleNode(head *ListNode) *ListNode {
 
 
 
-## 判断链表是否成环
+## [判断链表是否成环](https://leetcode.cn/problems/linked-list-cycle/description/)
 
 使用快慢指针，快的前进两步，慢的前进一步，如果最后快的遇到空指针则不是环，如果慢指针与快指针相遇则成环。
 
-如果链表成环返回，环的最开始的节点。<img src="./.pic/数据结构/image-20220323092951007.png" alt="image-20220323092951007" style="zoom: 50%;" />
-
-
+如果链表成环返回，环的最开始的节点。
 
 首先让快指针走2步，慢指针走1步。假设慢指针走了k步，快指针2k步，相遇必定在环中。可以得出环的长度是k，假设环的起点到相遇点的距离是m，那么根据慢指针可以得知`k-m`是head到环起点的长度，这与快指针剩下环的长度是相同的。
 
@@ -559,8 +546,6 @@ func getIntersectionNode(headA, headB *ListNode) *ListNode {
 ```
 
 
-
-<img src="./..pic/数据结构/image-20220323100852945.png" alt="image-20220323100852945" style="zoom:50%;" />
 
 换一种思路如果将A的终点脸上B的起点，**那么该问题就会变成寻找环的起点的问题**。
 
@@ -625,8 +610,6 @@ func reverseBetween(head *ListNode, m int, n int) *ListNode {
 
 # 栈与队列
 
-
-
 ## 2个栈实现队列
 
 ```java
@@ -668,10 +651,6 @@ class MyQueue {
 ## 队列实现栈
 
 push元素的时候，将元素添加到队列的尾部，弹出元素的时候需要弹出队尾元素，粗暴的方法就是先将队尾前面的元素全部弹出在添加到队尾。每一次弹出元素都比较麻烦。(作用比较小pop的时间复杂度是o(n))。
-
-<img src="./.pic/数据结构/image-20220323152952069.png" alt="image-20220323152952069" style="zoom: 50%;" /><img src="./.pic/数据结构与算法/image-20220323153008032.png" alt="image-20220323153008032" style="zoom:50%;" />
-
-
 
 ```java
 import java.util.LinkedList;
@@ -715,7 +694,7 @@ class MyStack {
 
 
 
-## 括号问题
+## [括号匹配问题](https://leetcode.cn/problems/valid-parentheses/)
 
 
 
@@ -971,8 +950,6 @@ class MonotonicQueue {
 
 大致的思路是使用HashMap在o(1)的时间内`get` `value`的值，在get的时候会将当前的key-value更新到队尾，在put的时候会将对头的元素进行删除，将put的元素放到队尾。
 
-<img src="./.pic/数据结构/image-20220324223638669.png" alt="image-20220324223638669" style="zoom:50%;" />
-
 
 
 ```java
@@ -1075,7 +1052,13 @@ class MonotonicQueue {
 
 分析上面的最近最久未使用的缓存算法要求
 
-<img src="./.pic/数据结构/image-20220325104126049.png" alt="image-20220325104126049" style="zoom:50%;" />
+1. 若key已经存在，修改key对应的val，将key提升为最近使用
+2. 如果key不存在，插入key，如果容量没有满直接插入
+3. 如果容量已经满了，淘汰最久未使用的key，然后插入
+
+
+
+
 
 1. 首先将缓存按照顺序加入链表就代表了其使用的顺序。
 2. 使用策略：当缓存被使用(hash查找到)或者添加，将缓存放到到队尾也比较自然。
@@ -1092,7 +1075,7 @@ class MonotonicQueue {
 1. 使用策略：缓存被使用需要cnt+1
 2. 删除策略：需要找到当前cnt最小的，如果cnt最小的有多个，找到最久未使用的(根据时间插入链表，返回链表的尾部)。
 
-<img src="./.pic/数据结构/image-20220325113223548.png" alt="image-20220325113223548" style="zoom: 80%;" />
+
 
 
 
@@ -1296,9 +1279,9 @@ class Solution {
 
 
 
-## 划分元素选取中位数
+## [数据流的中位数](https://leetcode.cn/problems/find-median-from-data-stream/)
 
-对于选取中位数的情况，<img src="./.pic/数据结构/image-20220327161645821.png" alt="image-20220327161645821" style="zoom:50%;" />
+
 
 使用倒三角来表示数据大小从底部到顶部越来越大，分析：对于数据我们需要对半分开，需要使用两个优先队列，对于相对小的数我们需要内部数据最大的在优先队列前面，对于数据较大的我们需要内部数据较小的在优先队列的前面，如果两个优先队列的长度相等，那么直接返回两个优先队列的第一个的平均值，两个优先队列需要维护长度之差在1范围内，如果接连两个数值添加到某个队列中，需要将这个队列的第一个数据添加到另一个队列。
 
@@ -1436,7 +1419,7 @@ func invertTree(root *TreeNode) *TreeNode {
 - 然后思考交换节点的地方，放在前序遍历上直接交换当前根节点的左右子树，没有什么问题
 - 如果放在后序上面按照我的思路应该是，**先递归下去找到接近递归出口的地方进行下一次递归**
 
-![image-20220327180703290](./.pic/数据结构/image-20220327180703290.png)
+
 
 如上面的树，当前的递归到2的时候，会递归左节点，发现1的左右节点都是空的直接返回，然后递归右节点，发现3的左右节点都是空的直接返回，交换1和3节点并没有什么错误
 
@@ -1446,9 +1429,9 @@ func invertTree(root *TreeNode) *TreeNode {
 
 ## 层序遍历/双节点递归
 
-填充节点的next指针，使next指针指向右面的节点。（满二叉树）
+[ 填充每个节点的下一个右侧节点指针]()（满二叉树）
 
-![image-20220328110010150](./.pic/数据结构/image-20220328110010150.png)
+
 
 这个时候可以使用层序遍历。
 
@@ -1481,11 +1464,9 @@ func invertTree(root *TreeNode) *TreeNode {
 
 
 
-**思考这个时候怎么样才能使用递归**，想一想之前的递归，在一个节点的情况下，如下面的树
+**思考这个时候怎么样才能使用递归**，想一想之前的递归，在一个节点的情况下，树[1,2,3,4,5,6,7] (使用数组表示树)
 
-![image-20220328110437058](./.pic/数据结构/image-20220328110437058.png)
-
-比如说当前的节点`root = 2`节点，那么我只能让2的左节点4指向右节点5，没有办法获取节点3的左节点，让节点5指向节点6。
+比如说当前递归到节点`root = 2`节点，那么我只能让2的左节点4指向右节点5，没有办法获取节点3的左节点，让节点5指向节点6。
 
 这个时候仅仅使用一个root节点作为函数的传入的节点是不够的，函数的传入节点应该是当前节点的左右节点，这个时候才有可能让左节点的右孩子指向右节点的左孩子。
 
@@ -1518,11 +1499,7 @@ func connectDouble(left, right *Node) {
 
 
 
-## 二叉树按照前序遍历展开
-
-<img src="./.pic/数据结构/image-20220328213508468.png" alt="image-20220328213508468" style="zoom: 80%;" />
-
-
+## [二叉树展开为链表](https://leetcode.cn/problems/flatten-binary-tree-to-linked-list/)
 
 ```go
 func flatten(root *TreeNode) {
@@ -1548,11 +1525,7 @@ func flatten(root *TreeNode) {
 
 
 
-## 根据数组构架二叉树
-
-
-
-<img src="./.pic/数据结构/image-20220329111206710.png" alt="image-20220329111206710" style="zoom:50%;" />
+## [根据数组构架二叉树](https://leetcode.cn/problems/maximum-binary-tree/)
 
 ```go
 func constructMaximumBinaryTree(nums []int) *TreeNode {
@@ -1658,11 +1631,7 @@ func buildTree(inorder []int, postorder []int) *TreeNode {
 
 
 
-## 二叉树的序列化
-
-<img src="./.pic/数据结构/image-20220329215619369.png" alt="image-20220329215619369" style="zoom:50%;" />
-
-
+## [二叉树的序列化](https://leetcode.cn/problems/serialize-and-deserialize-binary-tree/)
 
 ### 层序序列化
 
@@ -1767,17 +1736,13 @@ func (this *Codec) deserialize(data string) *TreeNode {
 
 
 
-## 寻找重复的子树
+## [寻找重复的子树](https://leetcode.cn/problems/find-duplicate-subtrees/)
 
 给定一棵二叉树 root，返回所有重复的子树。
 
 对于同一类的重复子树，你只需要返回其中任意一棵的根结点即可。
 
 如果两棵树具有相同的结构和相同的结点值，则它们是重复的。
-
-<img src="./.pic/数据结构/image-20220329205450313.png" alt="image-20220329205450313" style="zoom: 80%;" />
-
-
 
 首先为每一个节点建立当前节点为根的树的序列化，然后建立map对应如果存在就++，找出map的string的值是2的情况在使用反序列化出重复出现的子树。
 
@@ -2230,13 +2195,7 @@ func isBipartite(graph [][]int) bool {
 - 具有欧拉回路的无向图称为欧拉图；
 - 具有欧拉通路但不具有欧拉回路的无向图称为半欧拉图。
 
-leetcode 332
-
-给你一份航线列表 tickets ，其中 tickets[i] = [fromi, toi] 表示飞机出发和降落的机场地点。请你对该行程进行重新规划排序。所有这些机票都属于一个从 JFK（肯尼迪国际机场）出发的先生，所以该行程必须从 JFK 开始。如果存在多种有效的行程，请你按字典排序返回最小的行程组合。例如，行程 ["JFK", "LGA"] 与 ["JFK", "LGB"] 相比就更小，排序更靠前。假定所有机票至少存在一种合理的行程。且所有的机票 必须都用一次 且 只能用一次。
-
-![image-20220913193848697](./.pic/数据结构/image-20220913193848697-1663069138445-1.png)
-
-https://leetcode.cn/problems/reconstruct-itinerary/
+[重新安排行程](https://leetcode.cn/problems/reconstruct-itinerary/)
 
 根据上面的情况可以发现所有的机票必须使用一次，那么可以发现必须要经过所有的边，并且需要从指定的位置出发。
 
@@ -2307,8 +2266,6 @@ func findItinerary(tickets [][]string) []string {
 **注意范围**
 
 有时候需要在二维数组进行投影到一维数组，`(x , y) --->  x * m + y`，其中m代表的是每一行的个数。
-
-
 
 ```go
 var cnt int
@@ -2521,8 +2478,6 @@ public class Main {
     }
 }
 ```
-
-
 
 ## 名人问题
 
