@@ -16,6 +16,8 @@ func New(input string) *Lexer {
 }
 
 // 每一次读取一个tokenType
+// 注意对于上面的一些case并没有return操作,下面的一些有return操作
+// 没有return会再次执行readChar()然后在返回
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 	l.skipWhitespace()
@@ -33,6 +35,10 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.PLUS, l.ch)
 	case '-':
 		tok = newToken(token.MINUS, l.ch)
+	case '[':
+		tok = newToken(token.LBRACKET, l.ch)
+	case ']':
+		tok = newToken(token.RBRACKET, l.ch)
 	case '!':
 		if l.peekChar() == '=' {
 			ch := l.ch
@@ -62,6 +68,9 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.LPAREN, l.ch)
 	case ')':
 		tok = newToken(token.RPAREN, l.ch)
+	case '"':
+		tok.Type = token.STRING
+		tok.Literal = l.readString()
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
@@ -122,8 +131,24 @@ func (l *Lexer) readTarget(f func(ch byte) bool) string {
 	return l.input[position:l.offset]
 }
 
+// 跳过最初的" 以及最后的 "
+func (l *Lexer) readString() string {
+	position := l.offset + 1
+	for {
+		l.readChar()
+		if l.ch == '"' || l.ch == 0 {
+			break
+		}
+	}
+	return l.input[position:l.offset]
+}
+
 func isLetter(ch byte) bool {
 	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+}
+
+func isQuotation(ch byte) bool {
+	return ch == '"'
 }
 
 func isDigit(ch byte) bool {

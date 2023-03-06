@@ -21,7 +21,6 @@ func Start(in io.Reader, out io.Writer) {
 		if !scanned {
 			return
 		}
-
 		line := scanner.Text()
 		l := lexer.New(line)
 		p := parser.New(l)

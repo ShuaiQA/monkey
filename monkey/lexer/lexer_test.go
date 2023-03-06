@@ -7,12 +7,11 @@ import (
 
 func TestNextToken(t *testing.T) {
 	input := `let five = 5;
-let ten = 10;
-
+let s = "sssss";
+let arr = [1,"aa"];
 let add = fn(x, y) {
   x + y;
 };
-
 let result = add(five, ten);
 !-/*5;
 5 < 10 > 5;
@@ -37,9 +36,18 @@ if (5 < 10) {
 		{token.INT, "5"},
 		{token.SEMICOLON, ";"},
 		{token.LET, "let"},
-		{token.IDENT, "ten"},
+		{token.IDENT, "s"},
 		{token.ASSIGN, "="},
-		{token.INT, "10"},
+		{token.STRING, "sssss"},
+		{token.SEMICOLON, ";"},
+		{token.LET, "let"},
+		{token.IDENT, "arr"},
+		{token.ASSIGN, "="},
+		{token.LBRACKET, "["},
+		{token.INT, "1"},
+		{token.COMMA, ","},
+		{token.STRING, "aa"},
+		{token.RBRACKET, "]"},
 		{token.SEMICOLON, ";"},
 		{token.LET, "let"},
 		{token.IDENT, "add"},

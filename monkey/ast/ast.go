@@ -138,6 +138,15 @@ func (b *Boolean) expressionNode()      {}
 func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
 func (b *Boolean) String() string       { return b.Token.Literal }
 
+type StringLiteral struct {
+	Token token.Token
+	Value string
+}
+
+func (b *StringLiteral) expressionNode()      {}
+func (b *StringLiteral) TokenLiteral() string { return b.Token.Literal }
+func (b *StringLiteral) String() string       { return b.Token.Literal }
+
 type IntegerLiteral struct {
 	Token token.Token
 	Value int64
@@ -246,5 +255,44 @@ func (ie *InfixExpression) String() string {
 	out.WriteString(" " + ie.Operator + " ")
 	out.WriteString(ie.Right.String())
 	out.WriteString(")")
+	return out.String()
+}
+
+// 数组是由多个表达式构成的
+type ArrayLiteral struct {
+	Token    token.Token // token.IDENT词法单元
+	Elements []Expression
+}
+
+func (ar *ArrayLiteral) expressionNode()      {}
+func (ar *ArrayLiteral) TokenLiteral() string { return ar.Token.Literal }
+func (ar *ArrayLiteral) String() string {
+	var out bytes.Buffer
+	elements := []string{}
+	for _, el := range ar.Elements {
+		elements = append(elements, el.String())
+	}
+	out.WriteString("[")
+	out.WriteString(strings.Join(elements, ", "))
+	out.WriteString("]")
+	return out.String()
+}
+
+// 用于查找数组下标的情况
+type IndexExpression struct {
+	Token token.Token // '['词法单元
+	Left  Expression
+	Index Expression
+}
+
+func (ie *IndexExpression) expressionNode()      {}
+func (ie *IndexExpression) TokenLiteral() string { return ie.Token.Literal }
+func (ie *IndexExpression) String() string {
+	var out bytes.Buffer
+	out.WriteString("(")
+	out.WriteString(ie.Left.String())
+	out.WriteString("[")
+	out.WriteString(ie.Index.String())
+	out.WriteString("])")
 	return out.String()
 }
