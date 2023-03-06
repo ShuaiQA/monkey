@@ -492,29 +492,26 @@ func middleNode(head *ListNode) *ListNode {
 
 算法思路：快指针2步，慢指针1步，直到相遇，使慢指针重新指向head，然后快慢指针以相同的速度进行，直到再次相遇就是环的起始节点。
 
-```java
-    ListNode detectCycle(ListNode head) {
-        ListNode fast, slow;
-        fast = slow = head;
-        while (fast != null && fast.next != null) {
-            fast = fast.next.next;
-            slow = slow.next;
-            if (fast == slow) break;
-        }
-        // 上⾯的代码类似 hasCycle 函数
-        if (fast == null || fast.next == null) {
-            // fast 遇到空指针说明没有环
-            return null;
-        }
-        // 重新指向头结点
-        slow = head;
-        // 快慢指针同步前进，相交点就是环起点
-        while (slow != fast) {
-            fast = fast.next;
-            slow = slow.next;
-        }
-        return slow;
-    }
+```go
+func detectCycle(head *ListNode) *ListNode {
+	fast, slow := head, head
+	for fast != nil && fast.Next != nil {
+		fast = fast.Next.Next
+		slow = slow.Next
+		if slow == fast {
+			break
+		}
+	}
+	if fast==nil||fast.Next==nil{
+		return nil
+	}
+	slow = head
+	for slow!=fast{
+		fast = fast.Next
+		slow = slow.Next
+	}
+	return slow
+}
 ```
 
 
@@ -610,86 +607,77 @@ func reverseBetween(head *ListNode, m int, n int) *ListNode {
 
 # 栈与队列
 
-## 2个栈实现队列
+## [2个栈实现队列](https://leetcode.cn/problems/yong-liang-ge-zhan-shi-xian-dui-lie-lcof/description/)
 
-```java
-import java.util.Stack;
+```go
+type cqueue struct {
+	instack, outstack []int
+}
 
-class MyQueue {
-    private Stack<Integer> front, rear;
-    public MyQueue() {
-        front = new Stack<>();
-        rear = new Stack<>();
-    }
+func constructor() cqueue {
+	return cqueue{}
+}
 
-    public void push(int x) {
-        rear.push(x);
-    }
+func (this *cqueue) appendtail(value int) {
+	this.instack = append(this.instack, value)
+}
 
-    public int pop() {
-        peek();
-        return front.pop();
-    }
-	
-    public int peek() {
-        if (front.empty()){
-            while (!rear.isEmpty()){
-                front.push(rear.pop());
-            }
-        }
-        return front.peek();
-    }
+func (this *cqueue) deletehead() int {
+	if len(this.outstack) == 0 {
+		if len(this.instack) == 0 {
+			return -1
+		}
+		this.in2out()
+	}
+	value := this.outstack[len(this.outstack)-1]
+	this.outstack = this.outstack[:len(this.outstack)-1]
+	return value
+}
 
-    public boolean empty() {
-        return front.isEmpty()&&rear.isEmpty();
-    }
+func (this *cqueue) in2out() {
+	for len(this.instack) > 0 {
+		this.outstack = append(this.outstack, this.instack[len(this.instack)-1])
+		this.instack = this.instack[:len(this.instack)-1]
+	}
 }
 ```
 
 
 
-## 队列实现栈
+## [2个队列实现栈](https://leetcode.cn/problems/implement-stack-using-queues/description/)
 
-push元素的时候，将元素添加到队列的尾部，弹出元素的时候需要弹出队尾元素，粗暴的方法就是先将队尾前面的元素全部弹出在添加到队尾。每一次弹出元素都比较麻烦。(作用比较小pop的时间复杂度是o(n))。
-
-```java
-import java.util.LinkedList;
-import java.util.Queue;
-
-class MyStack {
-    private Queue<Integer> queue = new LinkedList<>();
-    int top;
-    public MyStack() {
-
-    }
-	
-    //添加的时候更新top的值
-    public void push(int x) {
-        queue.add(x);
-        top = x;
-    }
-	
-    //注意更新top的值
-    public int pop() {
-        int size = queue.size();
-        while (size > 2) {
-            queue.add(queue.poll());
-            size--;
-        }
-        top = queue.peek();
-        queue.add(queue.poll());
-        return queue.poll();
-    }
-
-    public int top() {
-        return top;
-    }
-
-    public boolean empty() {
-        return queue.isEmpty();
-    }
+```go
+type MyStack struct {
+    queue1, queue2 []int
 }
-//pop的时间复杂度是o(n)
+
+/** Initialize your data structure here. */
+func Constructor() (s MyStack) {
+    return
+}
+
+func (s *MyStack) Push(x int) {
+    s.queue2 = append(s.queue2, x)
+    for len(s.queue1) > 0 {
+        s.queue2 = append(s.queue2, s.queue1[0])
+        s.queue1 = s.queue1[1:]
+    }
+    s.queue1, s.queue2 = s.queue2, s.queue1
+}
+
+func (s *MyStack) Pop() int {
+    v := s.queue1[0]
+    s.queue1 = s.queue1[1:]
+    return v
+}
+
+func (s *MyStack) Top() int {
+    return s.queue1[0]
+}
+
+func (s *MyStack) Empty() bool {
+    return len(s.queue1) == 0
+}
 ```
 
 
