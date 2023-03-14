@@ -12,5 +12,4 @@ func TestSkipList(t *testing.T) {
 	skip.Add(30)
 	skip.Add(40)
 	fmt.Println(skip)
-
 }

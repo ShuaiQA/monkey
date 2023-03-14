@@ -1,12 +1,45 @@
-// 这段代码演示了如何使用堆接口构建一个整数堆。
 package main
 
-import "fmt"
+import (
+	"bytes"
+	"crypto/sha256"
+	"encoding"
+	"fmt"
+	"log"
+	"runtime"
+)
 
-// 这个示例会将一些整数插入到堆里面， 接着检查堆中的最小值，
-// 之后按顺序从堆里面移除各个整数。
 func main() {
-	ar := make([]int, 3)
-	ar[1] = 3
-	fmt.Println(ar, len(ar))
+	const (
+		input1 = "The tunneling gopher digs downwards, "
+		input2 = "unaware of what he will find."
+	)
+
+	first := sha256.New()
+	first.Write([]byte(input1))
+
+	marshaler, ok := first.(encoding.BinaryMarshaler)
+	if !ok {
+		log.Fatal("first does not implement encoding.BinaryMarshaler")
+	}
+	state, err := marshaler.MarshalBinary()
+	if err != nil {
+		log.Fatal("unable to marshal hash:", err)
+	}
+
+	second := sha256.New()
+
+	unmarshaler, ok := second.(encoding.BinaryUnmarshaler)
+	if !ok {
+		log.Fatal("second does not implement encoding.BinaryUnmarshaler")
+	}
+	if err := unmarshaler.UnmarshalBinary(state); err != nil {
+		log.Fatal("unable to unmarshal hash:", err)
+	}
+
+	first.Write([]byte(input2))
+	second.Write([]byte(input2))
+
+	fmt.Printf("%x\n", first.Sum(nil))
+	fmt.Println(bytes.Equal(first.Sum(nil), second.Sum(nil)))
 }
